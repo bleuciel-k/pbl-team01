@@ -17,13 +17,15 @@ WINDOW_TITLE = "Gesture Magic Battle - Hand Tracking"
 HAND_CONNECTIONS = vision.HandLandmarksConnections.HAND_CONNECTIONS
 
 
-def annotate_frame(frame, result, fps):
+def annotate_frame(frame, result, fps, *, mirrored=False):
     height, width = frame.shape[:2]
     for landmarks, categories in zip(result.hand_landmarks, result.handedness):
         points = [
             (round(point.x * (width - 1)), round(point.y * (height - 1)))
             for point in landmarks
         ]
+        if mirrored:
+            points = [(width - 1 - x, y) for x, y in points]
         color = (80, 220, 100)
         for connection in HAND_CONNECTIONS:
             cv2.line(frame, points[connection.start], points[connection.end], color, 2, cv2.LINE_AA)
@@ -73,8 +75,9 @@ def track_capture(capture, landmarker, *, camera, headless):
         frames += 1
 
         if not headless:
-            annotate_frame(frame, result, frames / (perf_counter() - started))
-            cv2.imshow(WINDOW_TITLE, frame)
+            preview = cv2.flip(frame, 1) if camera else frame
+            annotate_frame(preview, result, frames / (perf_counter() - started), mirrored=camera)
+            cv2.imshow(WINDOW_TITLE, preview)
             if cv2.waitKey(1) & 0xFF in (ord("q"), 27):
                 break
             if cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) == 0:
