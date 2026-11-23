@@ -1,0 +1,55 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://gesture_battle.gd" id="1_battle"]
+[ext_resource type="PackedScene" path="res://dual_hand_preview.tscn" id="2_preview"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_enemy"]
+radius = 0.38
+height = 0.76
+
+[sub_resource type="StandardMaterial3D" id="Material_enemy"]
+albedo_color = Color(0.55, 0.37, 0.84, 1)
+resource_local_to_scene = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_fireball"]
+radius = 0.14
+height = 0.28
+
+[sub_resource type="StandardMaterial3D" id="Material_fireball"]
+shading_mode = 0
+albedo_color = Color(1, 0.59, 0.12, 1)
+
+[node name="GestureBattle" type="Node3D"]
+script = ExtResource("1_battle")
+
+[node name="DualHandPreview" parent="." instance=ExtResource("2_preview")]
+
+[node name="Enemy" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.15, -0.6)
+mesh = SubResource("SphereMesh_enemy")
+material_override = SubResource("Material_enemy")
+
+[node name="Fireball" type="MeshInstance3D" parent="."]
+visible = false
+mesh = SubResource("SphereMesh_fireball")
+material_override = SubResource("Material_fireball")
+
+[node name="BattleHud" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Panel" type="VBoxContainer" parent="BattleHud"]
+offset_left = 16.0
+offset_top = 50.0
+theme_override_constants/separation = 8
+
+[node name="Status" type="Label" parent="BattleHud/Panel"]
+theme_override_font_sizes/font_size = 21
+
+[node name="Controls" type="Label" parent="BattleHud/Panel"]
+
+[node name="Difficulty" type="OptionButton" parent="BattleHud/Panel"]
+size_flags_horizontal = 0
+
+[node name="Start" type="Button" parent="BattleHud/Panel"]
+size_flags_horizontal = 0
+text = "Start battle"
