@@ -12,12 +12,14 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks.python import BaseOptions, vision
 
+from app.gesture_classifier import GestureClassifier, GestureDataset, extract_features
+
 
 WINDOW_TITLE = "Gesture Magic Battle - Hand Tracking"
 HAND_CONNECTIONS = vision.HandLandmarksConnections.HAND_CONNECTIONS
 
 
-def annotate_frame(frame, result, fps, *, mirrored=False):
+def annotate_frame(frame, result, fps, *, mirrored=False, classifier=None, sample_count=0):
     height, width = frame.shape[:2]
     for landmarks, categories in zip(result.hand_landmarks, result.handedness):
         points = [
@@ -32,18 +34,26 @@ def annotate_frame(frame, result, fps, *, mirrored=False):
         for point in points:
             cv2.circle(frame, point, 3, (245, 245, 245), -1, cv2.LINE_AA)
 
-        label = categories[0].category_name if categories else "Unknown"
+        handedness = categories[0].category_name if categories else "Unknown"
+        label = handedness
+        if classifier is not None:
+            features = extract_features(landmarks, handedness)
+            gesture, dist = classifier.predict(features)
+            dist_text = f" ({dist:.2f})" if dist is not None else ""
+            label = f"{handedness} | {gesture}{dist_text}"
         wrist_x, wrist_y = points[0]
-        label_position = (max(0, min(wrist_x, width - 80)), max(24, min(wrist_y - 8, height - 1)))
+        label_position = (max(0, min(wrist_x, width - 220)), max(24, min(wrist_y - 8, height - 1)))
         cv2.putText(frame, label, label_position, cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
 
     status = f"Tracking FPS: {fps:.1f} | Hands: {len(result.hand_landmarks)}"
+    if classifier is not None:
+        status += f" | Samples: {sample_count} | Keys: 1-5=Add c=Clear q=Quit"
     (text_width, _), baseline = cv2.getTextSize(status, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)
     cv2.rectangle(frame, (6, 4), (text_width + 18, 28 + baseline + 4), (0, 0, 0), -1)
     cv2.putText(frame, status, (12, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
 
 
-def track_capture(capture, landmarker, *, camera, headless):
+def track_capture(capture, landmarker, *, camera, headless, dataset=None, classifier=None):
     counts = Counter()
     frames = 0
     last_timestamp = -1
@@ -76,10 +86,31 @@ def track_capture(capture, landmarker, *, camera, headless):
 
         if not headless:
             preview = cv2.flip(frame, 1) if camera else frame
-            annotate_frame(preview, result, frames / (perf_counter() - started), mirrored=camera)
+            sample_count = len(dataset.features) if dataset is not None else 0
+            annotate_frame(
+                preview,
+                result,
+                frames / (perf_counter() - started),
+                mirrored=camera,
+                classifier=classifier,
+                sample_count=sample_count,
+            )
             cv2.imshow(WINDOW_TITLE, preview)
-            if cv2.waitKey(1) & 0xFF in (ord("q"), 27):
+            key = cv2.waitKey(1) & 0xFF
+            if key in (ord("q"), 27):
                 break
+            if dataset is not None and classifier is not None:
+                if ord("1") <= key <= ord("5") and result.hand_landmarks:
+                    class_name = f"Class_{chr(key)}"
+                    handedness = result.handedness[0][0].category_name if result.handedness[0] else "Right"
+                    features = extract_features(result.hand_landmarks[0], handedness)
+                    dataset.add_sample(features, class_name)
+                    dataset.save()
+                    classifier.fit(dataset.features, dataset.labels)
+                elif key == ord("c"):
+                    dataset.clear()
+                    dataset.save()
+                    classifier.fit(dataset.features, dataset.labels)
             if cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) == 0:
                 break
 
@@ -95,6 +126,8 @@ def main(argv=None):
     source.add_argument("--camera", type=int, default=0, help="Webcam device index (default: 0).")
     source.add_argument("--video", type=Path, help="Read a recorded video instead of a webcam.")
     parser.add_argument("--headless", action="store_true", help="Print tracking statistics without opening a window.")
+    parser.add_argument("--dataset", type=Path, default=Path("data/gestures.json"), help="Path to gesture dataset JSON.")
+    parser.add_argument("--threshold", type=float, default=0.6, help="Distance threshold for Unknown classification.")
     args = parser.parse_args(argv)
 
     if not args.model.is_file():
@@ -115,8 +148,19 @@ def main(argv=None):
             running_mode=vision.RunningMode.VIDEO,
             num_hands=2,
         )
+        dataset = GestureDataset(args.dataset)
+        dataset.load()
+        classifier = GestureClassifier(distance_threshold=args.threshold)
+        classifier.fit(dataset.features, dataset.labels)
         with vision.HandLandmarker.create_from_options(options) as landmarker:
-            counts, fps = track_capture(capture, landmarker, camera=camera, headless=args.headless)
+            counts, fps = track_capture(
+                capture,
+                landmarker,
+                camera=camera,
+                headless=args.headless,
+                dataset=dataset,
+                classifier=classifier,
+            )
     except KeyboardInterrupt:
         return 130
     except (OSError, RuntimeError, ValueError, cv2.error) as error:
