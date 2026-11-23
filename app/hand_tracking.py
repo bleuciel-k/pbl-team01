@@ -43,7 +43,7 @@ def annotate_frame(frame, result, fps, *, mirrored=False):
     cv2.putText(frame, status, (12, 28), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
 
 
-def track_capture(capture, landmarker, *, camera, headless):
+def track_capture(capture, landmarker, *, camera, headless, on_result=None):
     counts = Counter()
     frames = 0
     last_timestamp = -1
@@ -71,6 +71,8 @@ def track_capture(capture, landmarker, *, camera, headless):
         last_timestamp = timestamp
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         result = landmarker.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp)
+        if on_result is not None:
+            on_result(frames, timestamp, result)
         counts[len(result.hand_landmarks)] += 1
         frames += 1
 
@@ -88,7 +90,7 @@ def track_capture(capture, landmarker, *, camera, headless):
     return counts, frames / (perf_counter() - started)
 
 
-def main(argv=None):
+def main(argv=None, *, on_result=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", type=Path, required=True, help="Path to the MediaPipe .task model.")
     source = parser.add_mutually_exclusive_group()
@@ -116,7 +118,9 @@ def main(argv=None):
             num_hands=2,
         )
         with vision.HandLandmarker.create_from_options(options) as landmarker:
-            counts, fps = track_capture(capture, landmarker, camera=camera, headless=args.headless)
+            counts, fps = track_capture(
+                capture, landmarker, camera=camera, headless=args.headless, on_result=on_result
+            )
     except KeyboardInterrupt:
         return 130
     except (OSError, RuntimeError, ValueError, cv2.error) as error:

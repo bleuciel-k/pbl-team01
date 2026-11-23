@@ -1,0 +1,14 @@
+config_version=5
+
+[application]
+config/name="Gesture Magic Battle - Landmark Preview"
+run/main_scene="res://landmark_preview.tscn"
+
+[display]
+window/size/viewport_width=800
+window/size/viewport_height=600
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.06, 0.08, 0.11, 1)
