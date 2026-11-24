@@ -11,10 +11,10 @@
 - コードと仕様が食い違う場合は仕様を正とし、勝手に直さず人間に報告する。
 
 ## 技術的な制約
-- 言語: 〈例: Python 3.10 以上〉
-- 使ってよいライブラリ: 〈例: OpenCV, NumPy, PyQt5〉
+- 言語: Python 3.10 以上
+- 使ってよいライブラリ: OpenCV, NumPy, PyQt5, MediaPipe
 - 上記以外のライブラリはインストール・import しない。必要だと考えた場合は理由を示して人間に確認する。
-- テストの実行コマンド: 〈例: python -m unittest discover -s tests -v〉
+- テストの実行コマンド: python -m unittest discover -s tests -v
 - テスト画像は data/test_images/ に置く。
 - Windows と macOS の両方で動くこと。
 
