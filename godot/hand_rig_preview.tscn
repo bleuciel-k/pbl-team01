@@ -1,0 +1,47 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://hand_rig_preview.gd" id="1_preview"]
+[ext_resource type="Script" path="res://hand_rig.gd" id="2_rig"]
+
+[sub_resource type="Environment" id="Environment_preview"]
+background_mode = 1
+background_color = Color(0.06, 0.08, 0.11, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.8, 0.86, 1, 1)
+ambient_light_energy = 0.65
+
+[sub_resource type="LabelSettings" id="LabelSettings_status"]
+font_size = 20
+
+[node name="HandRigPreview" type="Node3D"]
+script = ExtResource("1_preview")
+
+[node name="Environment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_preview")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+position = Vector3(0.8, 1.25, 5.5)
+projection = 1
+current = true
+size = 4.7
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-36, 36, 0)
+light_energy = 1.15
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(35, -135, 0)
+light_color = Color(0.58, 0.7, 1, 1)
+light_energy = 0.65
+
+[node name="HandRig" type="Skeleton3D" parent="."]
+visible = false
+script = ExtResource("2_rig")
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="Hud"]
+offset_left = 16.0
+offset_top = 16.0
+text = "Waiting for Python on UDP 5005"
+label_settings = SubResource("LabelSettings_status")
