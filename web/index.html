@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gesture Magic Battle</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="battle-screen">
+    <div class="upper">
+      <aside class="gesture-stack" aria-label="ジェスチャー">
+        <section class="panel gesture">
+          <h2>手の見本</h2>
+          <div id="example-icon" class="gesture-icon" aria-hidden="true">
+            <img src="./assets/gesture-fist.png" alt="" width="72" height="72">
+            <img src="./assets/gesture-palm.png" alt="" width="72" height="72">
+          </div>
+          <p id="example-label">攻撃：握る ／ 回避：開く</p>
+        </section>
+        <section class="panel gesture">
+          <h2>認識された手</h2>
+          <div id="recognized-icon" class="gesture-icon" aria-hidden="true">—</div>
+          <p id="recognized-label">未検出</p>
+        </section>
+      </aside>
+
+      <div class="battle-column">
+        <section class="arena" aria-label="中世の城での決闘" data-phase="title">
+          <div class="stage" aria-hidden="true"><span class="spell"></span></div>
+          <div class="arena-heading">
+            <h1>Gesture Magic Battle</h1>
+            <div class="enemy">
+              <label for="enemy-hp">対戦相手 <span id="enemy-value">100 HP</span></label>
+              <meter id="enemy-hp" min="0" max="100" value="100"></meter>
+            </div>
+          </div>
+        </section>
+        <section class="panel dialog" aria-label="ダイアログ">
+          <div class="dialog-main">
+            <div><h2 id="phase">対戦準備</h2><p id="instruction">カメラを有効にしてバトルを始めます。</p></div>
+            <output id="timer" aria-label="残り時間" hidden></output>
+          </div>
+          <p id="event" role="status"></p>
+        </section>
+      </div>
+    </div>
+
+    <div class="lower">
+      <section class="panel camera-panel" aria-label="カメラ">
+        <div class="camera-heading">
+          <h2>カメラ</h2><span id="camera-state" role="status">カメラ停止中</span>
+        </div>
+        <div class="camera-view">
+          <video id="video" muted playsinline></video>
+          <canvas id="landmarks" aria-hidden="true"></canvas>
+          <p id="camera-placeholder">カメラを起動すると映像が表示されます。</p>
+        </div>
+        <div class="camera-controls">
+          <button id="camera" type="button">カメラを起動</button>
+          <span id="hand-count" hidden></span>
+        </div>
+        <p id="camera-error" role="alert" hidden></p>
+      </section>
+
+      <section class="panel player-panel" aria-label="プレイヤーのステータス">
+        <h2>あなた</h2>
+        <div class="player-stats">
+          <div class="stat">
+            <label for="player-hp">HP <strong id="player-value">100 HP</strong></label>
+            <meter id="player-hp" min="0" max="100" value="100"></meter>
+          </div>
+          <div class="stat"><span>MP</span><strong aria-label="未設定">—</strong></div>
+          <div class="stat"><span>状態</span><strong id="player-status">待機中</strong></div>
+        </div>
+        <div class="actions">
+          <label for="difficulty">難易度</label>
+          <select id="difficulty"><option value="easy">やさしい</option><option value="normal" selected>ふつう</option></select>
+          <button id="start" type="button" disabled>バトル開始</button>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./main.mjs"></script>
+</body>
+</html>

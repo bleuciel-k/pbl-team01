@@ -1,0 +1,102 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  color: #f1e6cf;
+  background: #141617;
+  --panel: #252520;
+  --border: #665337;
+  --muted: #c3b69c;
+  --gold: #e8c68b;
+  --health: #85b68b;
+  --danger: #ec9a83;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+h1, h2, p { margin: 0; }
+h2 { font-size: .95rem; letter-spacing: .05em; }
+.battle-screen { width: min(1440px, 100% - 32px); margin: clamp(8px, 1.1vw, 20px) auto; }
+
+.upper, .lower { display: grid; gap: 8px; }
+.upper { grid-template-columns: minmax(0, 20.4fr) minmax(0, 79.6fr); }
+.lower { grid-template-columns: minmax(0, 29.2fr) minmax(0, 70.8fr); margin-top: 8px; }
+.gesture-stack, .battle-column { display: grid; min-width: 0; gap: 8px; }
+.gesture-stack { grid-template-rows: repeat(2, 1fr); }
+.battle-column { grid-template-rows: auto minmax(72px, auto); }
+
+.panel, .arena { border: 1px solid var(--border); border-radius: 5px; }
+.panel { background: linear-gradient(145deg, #2c2b25, var(--panel)); padding: clamp(12px, 1.55vw, 22px); }
+.gesture { display: grid; place-content: center; justify-items: center; text-align: center; gap: 5px; }
+.gesture-icon {
+  min-width: 1.7em;
+  min-height: 1.7em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .32em;
+  margin-block: 6px;
+  padding: .16em .24em;
+  border: 1px solid #887045;
+  border-radius: 12px;
+  background: #1c1c18;
+  font-size: clamp(1.35rem, 3.5vw, 2.65rem);
+  white-space: nowrap;
+  line-height: 1.25;
+}
+.gesture-icon img { width: 1.14em; height: 1.14em; }
+.gesture p { color: var(--muted); font-size: .76rem; }
+
+.arena { position: relative; width: 100%; min-width: 0; min-height: 235px; aspect-ratio: 2.46; overflow: hidden; background: #24292b; }
+.stage { position: absolute; inset: 0; background: #24292b url('./assets/castle-duel-pixel.webp') center 55% / cover no-repeat; image-rendering: pixelated; }
+.arena-heading {
+  position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 14px; padding: clamp(10px, 1.6vw, 22px);
+  background: linear-gradient(#141614ed, #14161400);
+}
+h1 { font: 600 clamp(.95rem, 2.25vw, 1.75rem) Georgia, serif; color: #ffe5b8; text-shadow: 0 2px 3px #000; }
+.enemy { min-width: 24%; max-width: 55%; }
+.enemy label, .stat label { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: .78rem; }
+.enemy span { white-space: nowrap; font-variant-numeric: tabular-nums; }
+meter { width: 100%; display: block; height: 12px; margin-top: 5px; accent-color: var(--health); }
+meter::-webkit-meter-bar { background: #4c483b; border: 0; }
+meter::-webkit-meter-optimum-value { background: var(--health); }
+#enemy-hp::-webkit-meter-optimum-value { background: var(--danger); }
+.spell {
+  position: absolute; left: 31%; top: 55%; width: 24px; aspect-ratio: 1; border-radius: 50%;
+  background: #ffd793; box-shadow: 0 0 21px 8px #ef782a; opacity: 0;
+}
+
+.dialog { display: grid; align-content: center; padding-block: 10px; }
+.dialog-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dialog p { color: var(--muted); font-size: .84rem; margin-top: 4px; }
+#timer { font-size: clamp(1rem, 3vw, 1.55rem); font-variant-numeric: tabular-nums; color: var(--gold); white-space: nowrap; }
+#event:empty { display: none; }
+#event { color: var(--gold); }
+
+.camera-heading, .camera-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.camera-heading { margin-bottom: 8px; }
+#camera-state, #hand-count { color: var(--muted); font-size: .72rem; }
+.camera-panel { min-width: 0; padding-block: 12px; }
+.camera-view { position: relative; display: grid; place-items: center; height: clamp(88px, 15vh, 130px); background: #181a18; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.camera-view video, .camera-view canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transform: scaleX(-1); }
+#camera-placeholder { position: relative; padding: 8px; color: var(--muted); font-size: .75rem; text-align: center; }
+.camera-controls { margin-top: 8px; }
+#camera-error { font-size: .79rem; color: var(--danger); margin-top: 8px; }
+.player-panel { display: flex; flex-direction: column; justify-content: center; }
+.player-stats { display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 10px; margin-block: 12px; }
+.stat { display: grid; gap: 5px; padding: 9px; border: 1px solid #5c4d36; background: #1f201c; border-radius: 4px; color: var(--muted); font-size: .8rem; }
+.stat strong { color: #f1e6cf; font-variant-numeric: tabular-nums; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; font-size: .84rem; }
+button, select { font: inherit; border: 1px solid #8f754d; border-radius: 4px; padding: 7px 10px; }
+button { cursor: pointer; background: var(--gold); color: #291f13; font-weight: 700; }
+button:disabled { opacity: .55; cursor: default; }
+select { background: #302c23; color: inherit; }
+:focus-visible { outline: 2px solid #ffe7b2; outline-offset: 3px; }
+
+@media (max-width: 710px) {
+  .battle-screen { width: calc(100% - 14px); }
+  .upper, .lower { grid-template-columns: minmax(0, 1fr); }
+  .gesture-stack { grid-template: 1fr / repeat(2, minmax(0, 1fr)); }
+  .arena { min-height: 180px; }
+  .camera-view { height: 180px; }
+}
