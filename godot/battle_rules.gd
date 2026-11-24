@@ -21,6 +21,7 @@ func start(now: int) -> void:
 	_attack_turn(now, "Battle started")
 
 
+# 時間切れを処理する。攻撃の時間切れは敵のターンへ進み、防御の時間切れは被弾する。
 func advance(now: int) -> bool:
 	if now < deadline_ms:
 		return false
@@ -39,6 +40,7 @@ func advance(now: int) -> bool:
 	return true
 
 
+# 発動条件とダメージはここで管理する。新しい攻撃ジェスチャーを追加するときもここを確認する。
 func accept_gesture(gesture: String, now: int) -> bool:
 	if now >= deadline_ms:
 		return false

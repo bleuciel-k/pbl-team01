@@ -19,6 +19,7 @@ func update() -> bool:
 	var changed := false
 	if last_received_ms >= 0 and now - last_received_ms >= TIMEOUT_MS:
 		last_received_ms = -1
+		# 送信側を再起動したときにフレーム番号0から再受信できるようにする。
 		last_sequence = -1
 		hands = []
 		changed = true
@@ -40,6 +41,7 @@ func _read_frame(data: PackedByteArray) -> bool:
 	var frame: Dictionary = parser.data
 	if frame.get("version") != 1 or not frame.get("hands") is Array:
 		return false
+	# UDPで順序が前後しても、古い姿勢で最新の表示を上書きしない。
 	var sequence: Variant = frame.get("sequence")
 	if not _number(sequence) or sequence < 0 or sequence != floor(sequence) or sequence <= last_sequence:
 		return false

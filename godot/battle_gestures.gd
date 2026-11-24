@@ -16,6 +16,7 @@ func update(hands: Array, now: int) -> Array[String]:
 		observed[side] = true
 		var gesture := _classify(hand.landmarks)
 		var pose: Dictionary = poses.get(side, {})
+		# 左右それぞれで姿勢の保持時間と発動済みの状態を管理する。
 		if pose.get("gesture") != gesture:
 			pose = {"gesture": gesture, "since": now, "confirmed": false, "last_seen": now}
 		elif now - int(pose.last_seen) > MAX_GAP_MS or pose.since < 0:
@@ -26,12 +27,14 @@ func update(hands: Array, now: int) -> Array[String]:
 			confirmed.append(gesture)
 		poses[side] = pose
 
+	# 検出が途切れたら保持時間をリセットする。発動済みの姿勢は姿勢が変わるまで再発動させない。
 	for side in poses:
 		if not observed.has(side):
 			poses[side].since = -1
 	return confirmed
 
 
+# ターン開始時に保持中の姿勢を記録し、前のターンからの持ち越しによる発動を防ぐ。
 func block_held() -> void:
 	for pose in poses.values():
 		pose.confirmed = not pose.gesture.is_empty()
@@ -49,6 +52,7 @@ func _classify(points: Array) -> String:
 		var length := root.distance_to(joint) + joint.distance_to(distal) + distal.distance_to(tip)
 		if length < 0.00001:
 			return ""
+		# 指の全長で正規化した到達距離と、隣り合う指節の角度で曲げ伸ばしを判定する。
 		var reach := root.distance_to(tip) / length
 		var alignment := (joint - root).normalized().dot((distal - joint).normalized())
 		if reach >= 0.85 and alignment >= 0.75:

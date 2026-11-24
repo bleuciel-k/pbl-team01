@@ -71,6 +71,7 @@ def track_capture(capture, landmarker, *, camera, headless, on_result=None):
         last_timestamp = timestamp
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         result = landmarker.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), timestamp)
+        # Godotには反転前の推論座標を渡す。鏡映はWebカメラの描画時にだけ行う。
         if on_result is not None:
             on_result(frames, timestamp, result)
         counts[len(result.hand_landmarks)] += 1

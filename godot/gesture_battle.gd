@@ -46,9 +46,11 @@ func _on_tracking_frame(hands: Array) -> void:
 	for gesture in gesture_input.update(hands, now):
 		if not battle.accept_gesture(gesture, now):
 			continue
+		# ルール側で受理されたジェスチャーに対応する演出を再生する。
 		if gesture == "FIST":
 			_play_fireball()
 		gesture_input.block_held()
+		# 1フレームで両手が確定しても、次のターンの行動を同時に処理しない。
 		break
 
 

@@ -25,6 +25,7 @@ func _process(delta: float) -> void:
 		hands.clear()
 		for hand in receiver.hands:
 			hands[hand.side] = hand.landmarks
+		# バトルには描画で補間した姿勢ではなく、受信したランドマークを渡す。
 		tracking_frame.emit(receiver.hands)
 
 	_update_rig(right_rig, hands.get("Right", []), delta)

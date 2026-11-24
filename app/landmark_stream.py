@@ -13,7 +13,9 @@ def send_landmarks(sock, sequence, timestamp_ms, result, *, port=5005):
         if len(landmarks) == 21 and all(math.isfinite(value) for point in landmarks for value in point):
             hands.append({"side": categories[0].category_name, "landmarks": landmarks})
 
+    # 手を検出できなかったフレームも送信し、Godot側の前回表示を消す。
     packet = {
+        # JSONの項目を変える場合は landmark_receiver.gd の検証処理も確認する。
         "version": 1,
         "sequence": sequence,
         "timestamp_ms": timestamp_ms,

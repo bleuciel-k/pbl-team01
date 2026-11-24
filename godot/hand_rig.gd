@@ -1,6 +1,7 @@
 extends Skeleton3D
 
 const FINGERS := ["thumb", "index", "middle", "ring", "pinky"]
+# モデルの指の付け根と長さは固定し、ランドマークは回転の推定に使う。
 const ROOTS := [
 	Vector3(0.38, 0.36, 0.04), Vector3(0.29, 0.84, 0.0), Vector3(0.07, 0.94, 0.0),
 	Vector3(-0.16, 0.87, 0.0), Vector3(-0.35, 0.74, 0.02),
@@ -43,6 +44,7 @@ func apply_landmarks(landmarks: Array, blend := 1.0) -> bool:
 		# xは鏡像表示、yは上向き、zはカメラに近い方向を正とする。
 		points.append(Vector3(-float(point[0]), -float(point[1]), -float(point[2])))
 
+	# 人差し指と小指の付け根、手首から中指への方向で手のひらの座標系を作る。
 	var across := points[5] - points[17]
 	var along := points[9] - points[0]
 	if across.length_squared() < MIN_DIRECTION_SQUARED or along.length_squared() < MIN_DIRECTION_SQUARED:
